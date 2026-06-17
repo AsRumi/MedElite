@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Facility Assessment Report Generator
 
-## Getting Started
+**INFINITE - Managed by MEDELITE**
 
-First, run the development server:
+A lightweight web app that takes a CMS Certification Number (CCN), fetches public facility data from the CMS Provider Data Catalog API, merges it with manually entered operational fields, and produces a print-ready PDF report ("Facility Assessment Snapshot").
+
+---
+
+## Live URL
+
+> [Link to Live Website](https://med-elite-eosin.vercel.app/)
+
+## Repository
+
+> [Link to Public Repository](https://github.com/AsRumi/MedElite)
+
+---
+
+## Run Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## How It Works
 
-## Learn More
+1. User enters a 6-character CCN in the form.
+2. The app calls `/api/facility?ccn=...` — a server-side proxy to the CMS Provider Data Catalog API (dataset `4pq5-n9py`). This avoids CORS issues and normalizes the raw string response.
+3. The normalized `FacilityData` is merged with manual form inputs into a `ReportModel`.
+4. The on-screen `SnapshotPreview` renders the report live.
+5. "Download PDF" triggers `@react-pdf/renderer` in the browser, producing a vector PDF with a clickable Medicare Care Compare hyperlink.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Assumptions
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Current Census** is a manual input field (not pulled from `average_number_of_residents_per_day`), per the authoritative mapping table in the assignment brief. The CMS field may be shown as a convenience hint but the value remains user-editable.
+- **Facility name** defaults to `provider_name` from the API (not `legal_business_name`), as this matches the displayed name on the reference snapshot. A manual override field takes precedence when filled.
+- Any CMS column-name adjustments discovered during the Phase 2 data-layer verification will be noted here.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Tech Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Concern    | Choice                                        | Reason                                                                                                          |
+| ---------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Framework  | Next.js (App Router) + TypeScript             | Single project for UI + API proxy; zero-config Vercel deploy                                                    |
+| Styling    | Tailwind CSS                                  | Fast, colocated, no component lib needed for this scope                                                         |
+| Data layer | Next.js Route Handler (server-side CMS proxy) | Sidesteps CORS; normalizes messy string response before the client sees it                                      |
+| PDF        | `@react-pdf/renderer`                         | Real vector PDF with selectable text and a true clickable `<Link>` — unlike the html2canvas screenshot approach |
+| Database   | None                                          | Stateless app; nothing to persist for the MVP                                                                   |
+| Auth       | None                                          | Internal single-purpose tool; out of scope for MVP                                                              |
+| Deployment | Vercel + GitHub                               | Natural fit; live URL from day one                                                                              |
+
+---
+
+## Future Options (not built)
+
+- **Saved report history:** Vercel Postgres or SQLite.
+- **Access control:** SSO gate if deployed as a real internal tool.
+- **Bonus metrics:** 12 hospitalization/ED rows from the Medicare Claims Quality Measures dataset.
