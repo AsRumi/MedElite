@@ -3,6 +3,8 @@
 import { useState } from "react";
 import type { FacilityData, ManualInputs, ReportModel } from "@/lib/types";
 import SnapshotPreview from "@/components/SnapshotPreview";
+import { pdf } from "@react-pdf/renderer";
+import FacilityPdf from "@/components/FacilityPdf";
 
 const EMPTY_MANUAL: ManualInputs = {
   nameOverride: "",
@@ -56,9 +58,27 @@ export default function Home() {
     setManual((prev) => ({ ...prev, [key]: value }));
   }
 
+  const [pdfLoading, setPdfLoading] = useState(false);
+
   const report: ReportModel | null = facility
     ? { facility, manual, displayName }
     : null;
+
+  async function handleDownloadPdf() {
+    if (!report) return;
+    setPdfLoading(true);
+    try {
+      const blob = await pdf(<FacilityPdf report={report} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${report.displayName || report.facility.ccn} — Facility Assessment.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setPdfLoading(false);
+    }
+  }
 
   return (
     <div className="min-h-screen" style={{ background: "#f0f4f8" }}>
@@ -247,7 +267,17 @@ export default function Home() {
         </div>
 
         {/* RIGHT — sticky snapshot preview */}
-        <div className="lg:sticky lg:top-6">
+        <div className="lg:sticky lg:top-6 space-y-3">
+          {report && (
+            <button
+              onClick={handleDownloadPdf}
+              disabled={pdfLoading}
+              className="w-full py-3 rounded-xl text-sm font-bold text-white tracking-wide transition-opacity disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
+              style={{ background: pdfLoading ? "#7fb3d3" : "#41b3a3" }}
+            >
+              {pdfLoading ? "Generating PDF…" : "⬇ Download PDF"}
+            </button>
+          )}
           {report ? (
             <SnapshotPreview report={report} />
           ) : (
