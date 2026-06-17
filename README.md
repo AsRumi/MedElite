@@ -41,7 +41,8 @@ Open [http://localhost:3000](http://localhost:3000).
 
 - **Current Census** is a manual input field (not pulled from `average_number_of_residents_per_day`), per the authoritative mapping table in the assignment brief. The CMS field may be shown as a convenience hint but the value remains user-editable.
 - **Facility name** defaults to `provider_name` from the API (not `legal_business_name`), as this matches the displayed name on the reference snapshot. A manual override field takes precedence when filled.
-- Any CMS column-name adjustments discovered during the Phase 2 data-layer verification will be noted here.
+- **CMS column names verified:** The prebuilt `location` field (`"ADDRESS,CITY,STATE,ZIP"`) is present and used directly; the individual address parts (`provider_address`, `citytown`, `state`, `zip_code`) are kept as a fallback in case it is ever empty.
+- **Live ratings vs. reference PDF:** The CMS dataset refreshes continuously, so ratings for CCN `686123` (Kendall Lakes) may differ from the static reference PDF provided with the brief. At the time of verification, the live values were Overall 5, Health Inspection 5, Staffing 2, QM 5. Assumption here is that this is expected and acceptable behavior since this reflects live data.
 
 ---
 
