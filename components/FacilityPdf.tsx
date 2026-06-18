@@ -238,7 +238,6 @@ function ratingColors(value: number | null) {
   return { bg: C.grayBg, text: C.grayText, border: C.grayBorder };
 }
 
-
 function PdfRow({ label, value }: { label: string; value?: string }) {
   const empty = !value?.trim();
   return (
@@ -280,12 +279,23 @@ function PdfRatingRow({
   );
 }
 
-function PdfMetricRow({ label, value, pct }: { label: string; value: number | null; pct?: boolean }) {
+function PdfMetricRow({
+  label,
+  value,
+  pct,
+}: {
+  label: string;
+  value: number | null;
+  pct?: boolean;
+}) {
   return (
     <View style={styles.row}>
       <Text style={styles.rowLabel}>{label}</Text>
       {value != null ? (
-        <Text style={styles.rowValue}>{value}{pct ? "%" : ""}</Text>
+        <Text style={styles.rowValue}>
+          {value}
+          {pct ? "%" : ""}
+        </Text>
       ) : (
         <Text style={styles.rowValueEmpty}>N/A</Text>
       )}
@@ -338,6 +348,14 @@ export default function FacilityPdf({ report, logoSrc }: Props) {
           ) : null}
         </View>
 
+        {/* On continuation pages, push content below the fixed header */}
+        <View
+          fixed
+          render={({ pageNumber }) =>
+            pageNumber > 1 ? <View style={{ height: 35 }} /> : null
+          }
+        />
+
         {/* Body */}
         <View style={styles.body}>
           <SectionHeader>Facility Information</SectionHeader>
@@ -382,18 +400,60 @@ export default function FacilityPdf({ report, logoSrc }: Props) {
           {facility.claims && (
             <>
               <SectionHeader>Hospitalization &amp; ED Metrics</SectionHeader>
-              <PdfMetricRow label="Short Term Hospitalization" value={facility.claims.strHospitalization} pct />
-              <PdfMetricRow label="STR National Avg. for Hospitalization" value={facility.claims.strHospitalizationNational} pct />
-              <PdfMetricRow label="STR State Avg. for Hospitalization" value={facility.claims.strHospitalizationState} pct />
-              <PdfMetricRow label="STR ED Visit" value={facility.claims.strEdVisit} pct />
-              <PdfMetricRow label="STR ED Visits National Avg." value={facility.claims.strEdVisitNational} pct />
-              <PdfMetricRow label="STR ED Visits State Avg." value={facility.claims.strEdVisitState} pct />
-              <PdfMetricRow label="LT Hospitalization" value={facility.claims.ltHospitalization} />
-              <PdfMetricRow label="LT National Avg. for Hospitalization" value={facility.claims.ltHospitalizationNational} />
-              <PdfMetricRow label="LT State Avg. for Hospitalization" value={facility.claims.ltHospitalizationState} />
-              <PdfMetricRow label="ED Visit" value={facility.claims.ltEdVisit} />
-              <PdfMetricRow label="LT ED Visits National Avg." value={facility.claims.ltEdVisitNational} />
-              <PdfMetricRow label="LT ED Visits State Avg." value={facility.claims.ltEdVisitState} />
+              <PdfMetricRow
+                label="Short Term Hospitalization"
+                value={facility.claims.strHospitalization}
+                pct
+              />
+              <PdfMetricRow
+                label="STR National Avg. for Hospitalization"
+                value={facility.claims.strHospitalizationNational}
+                pct
+              />
+              <PdfMetricRow
+                label="STR State Avg. for Hospitalization"
+                value={facility.claims.strHospitalizationState}
+                pct
+              />
+              <PdfMetricRow
+                label="STR ED Visit"
+                value={facility.claims.strEdVisit}
+                pct
+              />
+              <PdfMetricRow
+                label="STR ED Visits National Avg."
+                value={facility.claims.strEdVisitNational}
+                pct
+              />
+              <PdfMetricRow
+                label="STR ED Visits State Avg."
+                value={facility.claims.strEdVisitState}
+                pct
+              />
+              <PdfMetricRow
+                label="LT Hospitalization"
+                value={facility.claims.ltHospitalization}
+              />
+              <PdfMetricRow
+                label="LT National Avg. for Hospitalization"
+                value={facility.claims.ltHospitalizationNational}
+              />
+              <PdfMetricRow
+                label="LT State Avg. for Hospitalization"
+                value={facility.claims.ltHospitalizationState}
+              />
+              <PdfMetricRow
+                label="ED Visit"
+                value={facility.claims.ltEdVisit}
+              />
+              <PdfMetricRow
+                label="LT ED Visits National Avg."
+                value={facility.claims.ltEdVisitNational}
+              />
+              <PdfMetricRow
+                label="LT ED Visits State Avg."
+                value={facility.claims.ltEdVisitState}
+              />
             </>
           )}
 
