@@ -84,28 +84,54 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#f0f4f8" }}>
+    <div className="min-h-screen" style={{ background: "#f8f7fc" }}>
       {/* Full-width header */}
-      <header style={{ background: "#0a3d62" }} className="px-8 py-4 shadow-md">
+      <header
+        className="px-8 py-5 shadow-lg"
+        style={{
+          background: "linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 60%, #3d1f6b 100%)",
+          borderBottom: "3px solid #e91e8c",
+        }}
+      >
         <div className="max-w-screen-xl mx-auto flex items-center justify-between">
-          <div>
-            <p
-              className="text-xs font-semibold tracking-widest uppercase"
-              style={{ color: "#7fb3d3" }}
-            >
-              INFINITE &mdash; Managed by MEDELITE
-            </p>
-            <h1 className="text-lg font-bold tracking-wider uppercase text-white mt-0.5">
-              Facility Assessment Snapshot
-            </h1>
+          <div className="flex items-center gap-4">
+            <div
+              className="w-1 h-12 rounded-full"
+              style={{ background: "linear-gradient(180deg, #e91e8c 0%, #8b3fc8 100%)" }}
+            />
+            <div>
+              <p
+                className="text-xs font-semibold tracking-widest uppercase"
+                style={{ color: "#c084fc", fontFamily: "var(--font-inter)" }}
+              >
+                INFINITE &mdash; Managed by MEDELITE
+              </p>
+              <h1
+                className="text-xl font-bold tracking-wider uppercase text-white mt-0.5"
+                style={{ fontFamily: "var(--font-jakarta)" }}
+              >
+                Facility Assessment Snapshot
+              </h1>
+            </div>
           </div>
           {facility?.state && (
-            <span
-              className="text-3xl font-extrabold tracking-widest"
-              style={{ color: "#41b3a3" }}
-            >
-              {facility.state}
-            </span>
+            <div className="flex flex-col items-center">
+              <span
+                className="text-4xl font-black tracking-widest"
+                style={{
+                  background: "linear-gradient(135deg, #e91e8c 0%, #8b3fc8 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  fontFamily: "var(--font-jakarta)",
+                }}
+              >
+                {facility.state}
+              </span>
+              <span className="text-xs text-purple-300 tracking-widest uppercase font-medium mt-0.5">
+                State
+              </span>
+            </div>
           )}
         </div>
       </header>
@@ -116,22 +142,32 @@ export default function Home() {
         {/* LEFT — form column */}
         <div className="space-y-5">
           {/* CCN lookup card */}
-          <section className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <section
+            className="rounded-2xl overflow-hidden"
+            style={{
+              background: "#ffffff",
+              boxShadow: "0 1px 3px rgba(139,63,200,0.08), 0 4px 20px rgba(139,63,200,0.06)",
+              border: "1px solid rgba(139,63,200,0.12)",
+            }}
+          >
             <div
-              className="px-5 py-3 border-b border-slate-100"
-              style={{ background: "#e8f4fd" }}
+              className="px-6 py-4 border-b"
+              style={{
+                background: "linear-gradient(135deg, #faf5ff 0%, #fdf2f8 100%)",
+                borderColor: "rgba(139,63,200,0.1)",
+              }}
             >
               <h2
-                className="text-sm font-semibold uppercase tracking-wide"
-                style={{ color: "#0a3d62" }}
+                className="text-xs font-bold uppercase tracking-widest"
+                style={{ color: "#7c3aed", fontFamily: "var(--font-jakarta)" }}
               >
                 Facility Lookup
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs mt-0.5" style={{ color: "#9ca3af" }}>
                 Enter a 6-character CMS Certification Number.
               </p>
             </div>
-            <div className="px-5 py-4">
+            <div className="px-6 py-5">
               <form onSubmit={handleFetch} className="flex gap-3">
                 <input
                   type="text"
@@ -144,16 +180,28 @@ export default function Home() {
                 <button
                   type="submit"
                   disabled={loading || !ccnInput.trim()}
-                  className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                  style={{ background: loading ? "#7fb3d3" : "#0a3d62" }}
+                  className="px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                  style={{
+                    background: loading
+                      ? "#c084fc"
+                      : "linear-gradient(135deg, #e91e8c 0%, #8b3fc8 100%)",
+                    boxShadow: loading ? "none" : "0 4px 14px rgba(233,30,140,0.35)",
+                    fontFamily: "var(--font-jakarta)",
+                  }}
                 >
                   {loading ? "Loading…" : "Fetch"}
                 </button>
               </form>
               {error && (
-                <div className="mt-3 flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
-                  <span className="text-red-500 text-base leading-none mt-0.5">⚠</span>
-                  <p className="text-sm text-red-700 font-medium">{error}</p>
+                <div
+                  className="mt-4 flex items-start gap-3 rounded-xl px-4 py-3"
+                  style={{
+                    background: "#fff1f2",
+                    border: "1px solid #fecdd3",
+                  }}
+                >
+                  <span className="text-base leading-none mt-0.5" style={{ color: "#e11d48" }}>⚠</span>
+                  <p className="text-sm font-medium" style={{ color: "#9f1239" }}>{error}</p>
                 </div>
               )}
             </div>
@@ -161,19 +209,29 @@ export default function Home() {
 
           {/* Operational details — only shown after a successful fetch */}
           {facility && (
-            <section className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <section
+              className="rounded-2xl overflow-hidden"
+              style={{
+                background: "#ffffff",
+                boxShadow: "0 1px 3px rgba(139,63,200,0.08), 0 4px 20px rgba(139,63,200,0.06)",
+                border: "1px solid rgba(139,63,200,0.12)",
+              }}
+            >
               <div
-                className="px-5 py-3 border-b border-slate-100"
-                style={{ background: "#e8f4fd" }}
+                className="px-6 py-4 border-b"
+                style={{
+                  background: "linear-gradient(135deg, #faf5ff 0%, #fdf2f8 100%)",
+                  borderColor: "rgba(139,63,200,0.1)",
+                }}
               >
                 <h2
-                  className="text-sm font-semibold uppercase tracking-wide"
-                  style={{ color: "#0a3d62" }}
+                  className="text-xs font-bold uppercase tracking-widest"
+                  style={{ color: "#7c3aed", fontFamily: "var(--font-jakarta)" }}
                 >
                   Operational Details
                 </h2>
               </div>
-              <div className="px-5 py-4 space-y-4">
+              <div className="px-6 py-5 space-y-4">
                 <Field
                   label="Facility Name Override"
                   hint="Leave blank to use the official CMS name"
@@ -186,9 +244,9 @@ export default function Home() {
                     className={inputCls}
                   />
                   {manual.nameOverride.trim() && (
-                    <p className="text-xs mt-1" style={{ color: "#0a3d62" }}>
+                    <p className="text-xs mt-1.5 font-medium" style={{ color: "#8b3fc8" }}>
                       Report will show:{" "}
-                      <span className="font-semibold">{displayName}</span>
+                      <span className="font-bold">{displayName}</span>
                     </p>
                   )}
                 </Field>
@@ -275,8 +333,14 @@ export default function Home() {
             <button
               onClick={handleDownloadPdf}
               disabled={pdfLoading}
-              className="w-full py-3 rounded-xl text-sm font-bold text-white tracking-wide transition-opacity disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
-              style={{ background: pdfLoading ? "#7fb3d3" : "#41b3a3" }}
+              className="w-full py-3.5 rounded-xl text-sm font-bold text-white tracking-wide transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{
+                background: pdfLoading
+                  ? "#c084fc"
+                  : "linear-gradient(135deg, #e91e8c 0%, #8b3fc8 100%)",
+                boxShadow: pdfLoading ? "none" : "0 6px 20px rgba(233,30,140,0.4)",
+                fontFamily: "var(--font-jakarta)",
+              }}
             >
               {pdfLoading ? "Generating PDF…" : "⬇ Download PDF"}
             </button>
@@ -284,20 +348,30 @@ export default function Home() {
           {report ? (
             <SnapshotPreview report={report} />
           ) : (
-            <div className="bg-white rounded-xl shadow-sm border border-dashed border-slate-300 flex flex-col items-center justify-center py-20 text-center px-8">
+            <div
+              className="rounded-2xl flex flex-col items-center justify-center py-24 text-center px-8"
+              style={{
+                background: "#ffffff",
+                border: "1.5px dashed rgba(139,63,200,0.2)",
+                boxShadow: "0 1px 3px rgba(139,63,200,0.06)",
+              }}
+            >
               <div
-                className="w-12 h-12 rounded-full flex items-center justify-center mb-4"
-                style={{ background: "#e8f4fd" }}
+                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
+                style={{
+                  background: "linear-gradient(135deg, #faf5ff 0%, #fdf2f8 100%)",
+                  border: "1px solid rgba(139,63,200,0.15)",
+                }}
               >
                 <span className="text-2xl">🏥</span>
               </div>
               <p
-                className="text-sm font-semibold"
-                style={{ color: "#0a3d62" }}
+                className="text-sm font-bold"
+                style={{ color: "#1a1a2e", fontFamily: "var(--font-jakarta)" }}
               >
                 Preview will appear here
               </p>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs mt-1.5" style={{ color: "#9ca3af" }}>
                 Enter a CCN on the left to load a facility
               </p>
             </div>
@@ -310,7 +384,10 @@ export default function Home() {
 }
 
 const inputCls =
-  "w-full rounded-lg px-3 py-2 text-sm text-slate-900 bg-slate-50 border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent placeholder-slate-400";
+  "w-full rounded-xl px-4 py-2.5 text-sm font-medium bg-white border transition-all outline-none placeholder-gray-300"
+  + " focus:ring-2"
+  + " text-gray-800"
+  + " border-gray-200 focus:border-purple-400 focus:ring-purple-100";
 
 function Field({
   label,
@@ -323,10 +400,13 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-slate-600 mb-1 uppercase tracking-wide">
+      <label
+        className="block text-xs font-bold mb-1.5 uppercase tracking-widest"
+        style={{ color: "#7c3aed", fontFamily: "var(--font-jakarta)" }}
+      >
         {label}
       </label>
-      {hint && <p className="text-xs text-slate-400 mb-1">{hint}</p>}
+      {hint && <p className="text-xs mb-1.5" style={{ color: "#9ca3af" }}>{hint}</p>}
       {children}
     </div>
   );
