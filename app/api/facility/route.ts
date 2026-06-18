@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchFacilityByCcn, NotFoundError } from "@/lib/cms";
+import { fetchFacilityByCcn, fetchClaimsMetrics, NotFoundError } from "@/lib/cms";
 
 export async function GET(req: NextRequest) {
   const ccn = req.nextUrl.searchParams.get("ccn")?.trim() ?? "";
@@ -12,8 +12,9 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const data = await fetchFacilityByCcn(ccn);
-    return NextResponse.json({ data });
+    const facility = await fetchFacilityByCcn(ccn);
+    const claims = await fetchClaimsMetrics(ccn, facility.state);
+    return NextResponse.json({ data: { ...facility, claims } });
   } catch (err) {
     if (err instanceof NotFoundError) {
       return NextResponse.json({ error: err.message }, { status: 404 });

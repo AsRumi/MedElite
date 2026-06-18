@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { ReportModel } from "@/lib/types";
 import BrandingHeader from "./BrandingHeader";
 
@@ -20,37 +23,57 @@ export default function SnapshotPreview({ report }: Props) {
     >
       <BrandingHeader state={facility.state} />
 
-      <div className="px-8 py-6 space-y-0">
-        <SectionHeader>Facility Information</SectionHeader>
-        <Row label="Name of Facility" value={displayName} />
-        <Row label="Location" value={facility.location} />
-        <Row label="EMR" value={manual.emr} />
-        <Row
-          label="Census Capacity"
-          value={facility.certifiedBeds != null ? String(facility.certifiedBeds) : undefined}
-        />
-        <Row label="Current Census" value={manual.currentCensus} />
-        <Row label="Type of Patient" value={manual.typeOfPatient} />
+      <div className="px-8 py-6 space-y-3">
+        <Accordion title="Facility Information">
+          <Row label="Name of Facility" value={displayName} />
+          <Row label="Location" value={facility.location} />
+          <Row label="EMR" value={manual.emr} />
+          <Row
+            label="Census Capacity"
+            value={facility.certifiedBeds != null ? String(facility.certifiedBeds) : undefined}
+          />
+          <Row label="Current Census" value={manual.currentCensus} />
+          <Row label="Type of Patient" value={manual.typeOfPatient} />
+        </Accordion>
 
-        <SectionHeader>Medelite History</SectionHeader>
-        <Row
-          label="Previous Coverage from Medelite"
-          value={manual.previousCoverage || undefined}
-        />
-        <Row
-          label="Previous Provider Performance from Medelite"
-          value={manual.previousProviderPerformance}
-        />
-        <Row label="Medical Coverage" value={manual.medicalCoverage} />
+        <Accordion title="Medelite History">
+          <Row
+            label="Previous Coverage from Medelite"
+            value={manual.previousCoverage || undefined}
+          />
+          <Row
+            label="Previous Provider Performance from Medelite"
+            value={manual.previousProviderPerformance}
+          />
+          <Row label="Medical Coverage" value={manual.medicalCoverage} />
+        </Accordion>
 
-        <SectionHeader>CMS Star Ratings</SectionHeader>
-        <RatingRow label="Overall Rating" value={facility.overallRating} />
-        <RatingRow label="Health Inspection" value={facility.healthInspectionRating} />
-        <RatingRow label="Staffing" value={facility.staffingRating} />
-        <RatingRow label="Quality of Resident Care" value={facility.qmRating} />
+        <Accordion title="CMS Star Ratings">
+          <RatingRow label="Overall Rating" value={facility.overallRating} />
+          <RatingRow label="Health Inspection" value={facility.healthInspectionRating} />
+          <RatingRow label="Staffing" value={facility.staffingRating} />
+          <RatingRow label="Quality of Resident Care" value={facility.qmRating} />
+        </Accordion>
+
+        {facility.claims && (
+          <Accordion title="Hospitalization &amp; ED Metrics">
+            <MetricRow label="Short Term Hospitalization" value={facility.claims.strHospitalization} pct />
+            <MetricRow label="STR National Avg. for Hospitalization" value={facility.claims.strHospitalizationNational} pct />
+            <MetricRow label="STR State Avg. for Hospitalization" value={facility.claims.strHospitalizationState} pct />
+            <MetricRow label="STR ED Visit" value={facility.claims.strEdVisit} pct />
+            <MetricRow label="STR ED Visits National Avg." value={facility.claims.strEdVisitNational} pct />
+            <MetricRow label="STR ED Visits State Avg." value={facility.claims.strEdVisitState} pct />
+            <MetricRow label="LT Hospitalization" value={facility.claims.ltHospitalization} />
+            <MetricRow label="LT National Avg. for Hospitalization" value={facility.claims.ltHospitalizationNational} />
+            <MetricRow label="LT State Avg. for Hospitalization" value={facility.claims.ltHospitalizationState} />
+            <MetricRow label="ED Visit" value={facility.claims.ltEdVisit} />
+            <MetricRow label="LT ED Visits National Avg." value={facility.claims.ltEdVisitNational} />
+            <MetricRow label="LT ED Visits State Avg." value={facility.claims.ltEdVisitState} />
+          </Accordion>
+        )}
 
         {/* Medicare source link */}
-        <div className="pt-5 mt-3" style={{ borderTop: "1px solid #f3f0ff" }}>
+        <div className="pt-4 mt-1" style={{ borderTop: "1px solid #f3f0ff" }}>
           <p
             className="text-xs font-bold uppercase tracking-widest mb-1.5"
             style={{ color: "#8b3fc8" }}
@@ -72,21 +95,51 @@ export default function SnapshotPreview({ report }: Props) {
   );
 }
 
-function SectionHeader({ children }: { children: React.ReactNode }) {
+function Accordion({ title, children }: { title: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(true);
+
   return (
     <div
-      className="px-4 py-2.5 mt-5 first:mt-0 rounded-xl"
-      style={{
-        background: "linear-gradient(135deg, #faf5ff 0%, #fdf2f8 100%)",
-        border: "1px solid rgba(139,63,200,0.1)",
-      }}
+      className="rounded-xl overflow-hidden"
+      style={{ border: "1px solid rgba(139,63,200,0.1)" }}
     >
-      <p
-        className="text-xs font-black uppercase tracking-widest"
-        style={{ color: "#7c3aed" }}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-4 py-2.5 text-left transition-colors"
+        style={{
+          background: "linear-gradient(135deg, #faf5ff 0%, #fdf2f8 100%)",
+        }}
       >
-        {children}
-      </p>
+        <p
+          className="text-xs font-black uppercase tracking-widest"
+          style={{ color: "#7c3aed" }}
+          dangerouslySetInnerHTML={{ __html: title }}
+        />
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#8b3fc8"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{
+            flexShrink: 0,
+            transition: "transform 0.2s ease",
+            transform: open ? "rotate(180deg)" : "rotate(0deg)",
+          }}
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="px-4">
+          {children}
+        </div>
+      )}
     </div>
   );
 }
@@ -108,6 +161,27 @@ function Row({ label, value }: { label: string; value?: string }) {
           <span className="font-normal" style={{ color: "#d1d5db" }}>
             —
           </span>
+        )}
+      </span>
+    </div>
+  );
+}
+
+function MetricRow({ label, value, pct }: { label: string; value: number | null; pct?: boolean }) {
+  return (
+    <div
+      className="flex items-baseline py-3 gap-4"
+      style={{ borderBottom: "1px solid #f8f5ff" }}
+    >
+      <span
+        className="w-64 flex-shrink-0 text-xs font-bold uppercase tracking-wide"
+        style={{ color: "#9ca3af" }}
+      >
+        {label}
+      </span>
+      <span className="text-sm font-semibold" style={{ color: "#1a1a2e" }}>
+        {value != null ? `${value}${pct ? "%" : ""}` : (
+          <span className="font-normal italic" style={{ color: "#d1d5db" }}>N/A</span>
         )}
       </span>
     </div>

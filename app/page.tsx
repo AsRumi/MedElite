@@ -143,7 +143,7 @@ export default function Home() {
       <div className="max-w-screen-xl mx-auto px-4 py-8 lg:grid lg:grid-cols-2 lg:gap-8 lg:items-start space-y-6 lg:space-y-0">
 
         {/* LEFT — form column */}
-        <div className="space-y-5">
+        <div className="space-y-5 lg:sticky lg:top-6">
           {/* CCN lookup card */}
           <section
             className="rounded-2xl overflow-hidden"

@@ -280,6 +280,19 @@ function PdfRatingRow({
   );
 }
 
+function PdfMetricRow({ label, value, pct }: { label: string; value: number | null; pct?: boolean }) {
+  return (
+    <View style={styles.row}>
+      <Text style={styles.rowLabel}>{label}</Text>
+      {value != null ? (
+        <Text style={styles.rowValue}>{value}{pct ? "%" : ""}</Text>
+      ) : (
+        <Text style={styles.rowValueEmpty}>N/A</Text>
+      )}
+    </View>
+  );
+}
+
 function SectionHeader({ children }: { children: string }) {
   return (
     <View style={styles.sectionHeader}>
@@ -364,6 +377,25 @@ export default function FacilityPdf({ report, logoSrc }: Props) {
             label="Quality of Resident Care"
             value={facility.qmRating}
           />
+
+          {/* Hospitalization & ED Metrics */}
+          {facility.claims && (
+            <>
+              <SectionHeader>Hospitalization &amp; ED Metrics</SectionHeader>
+              <PdfMetricRow label="Short Term Hospitalization" value={facility.claims.strHospitalization} pct />
+              <PdfMetricRow label="STR National Avg. for Hospitalization" value={facility.claims.strHospitalizationNational} pct />
+              <PdfMetricRow label="STR State Avg. for Hospitalization" value={facility.claims.strHospitalizationState} pct />
+              <PdfMetricRow label="STR ED Visit" value={facility.claims.strEdVisit} pct />
+              <PdfMetricRow label="STR ED Visits National Avg." value={facility.claims.strEdVisitNational} pct />
+              <PdfMetricRow label="STR ED Visits State Avg." value={facility.claims.strEdVisitState} pct />
+              <PdfMetricRow label="LT Hospitalization" value={facility.claims.ltHospitalization} />
+              <PdfMetricRow label="LT National Avg. for Hospitalization" value={facility.claims.ltHospitalizationNational} />
+              <PdfMetricRow label="LT State Avg. for Hospitalization" value={facility.claims.ltHospitalizationState} />
+              <PdfMetricRow label="ED Visit" value={facility.claims.ltEdVisit} />
+              <PdfMetricRow label="LT ED Visits National Avg." value={facility.claims.ltEdVisitNational} />
+              <PdfMetricRow label="LT ED Visits State Avg." value={facility.claims.ltEdVisitState} />
+            </>
+          )}
 
           {/* Medicare source link */}
           <View style={styles.linkSection}>
