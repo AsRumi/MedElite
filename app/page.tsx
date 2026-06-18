@@ -67,6 +67,7 @@ export default function Home() {
   async function handleDownloadPdf() {
     if (!report) return;
     setPdfLoading(true);
+    setError(null);
     try {
       const blob = await pdf(<FacilityPdf report={report} />).toBlob();
       const url = URL.createObjectURL(blob);
@@ -75,6 +76,8 @@ export default function Home() {
       a.download = `${report.displayName || report.facility.ccn} — Facility Assessment.pdf`;
       a.click();
       URL.revokeObjectURL(url);
+    } catch {
+      setError("PDF generation failed. Please try again.");
     } finally {
       setPdfLoading(false);
     }

@@ -39,9 +39,23 @@ export async function fetchFacilityByCcn(ccn: string): Promise<FacilityData> {
   url.searchParams.set("conditions[0][value]", ccn);
   url.searchParams.set("conditions[0][operator]", "=");
 
-  const res = await fetch(url.toString(), {
-    next: { revalidate: 0 },
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10_000);
+
+  let res: Response;
+  try {
+    res = await fetch(url.toString(), {
+      next: { revalidate: 0 },
+      signal: controller.signal,
+    });
+  } catch (err) {
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error("CMS API request timed out. Please try again.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!res.ok) {
     throw new Error(`CMS API responded with status ${res.status}`);
