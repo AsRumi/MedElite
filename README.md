@@ -52,6 +52,7 @@ No environment variables are required since the app calls the public CMS API fro
 - **CMS column names verified** against the live endpoint using test CCN `686123` (Kendall Lakes Healthcare and Rehab Center, FL). All four rating columns (`overall_rating`, `health_inspection_rating`, `staffing_rating`, `qm_rating`) and the address fields matched the mapping table exactly — no renames were needed.
 - **Live ratings vs. reference PDF:** The CMS dataset refreshes continuously, so ratings for CCN `686123` may differ from the static reference PDF provided with the brief.
 - **Facilities with no rating** (e.g. CCN `185489`, Willowbrook KY) display "N/A" for missing star ratings rather than crashing or showing zero.
+- **Asynchronously loading 12 metrics:** During testing runs, it was found that loading metrics takes longer than loading facility information, ratings and history, sometimes resulting in timeouts. Therefore, router.ts was split to make two calls; one for the 12 optional metrics, and another for the information required for the MVP. If the metrics load slower than initial information, a loading indicator is displayed in place.
 
 ---
 
