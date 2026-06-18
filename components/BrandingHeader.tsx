@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface BrandingHeaderProps {
   state?: string;
 }
@@ -5,15 +7,24 @@ interface BrandingHeaderProps {
 export default function BrandingHeader({ state }: BrandingHeaderProps) {
   return (
     <div
-      className="px-8 py-6 flex items-center justify-between"
+      className="px-8 py-4 flex items-center justify-between"
       style={{
         background: "linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 60%, #3d1f6b 100%)",
         borderBottom: "2px solid #e91e8c",
       }}
     >
       <div className="flex items-center gap-3">
+        {/* Logo mark */}
+        <Image
+          src="/logo.png"
+          alt="INFINITE logo"
+          width={48}
+          height={48}
+          className="object-contain flex-shrink-0"
+        />
+        {/* Accent bar */}
         <div
-          className="w-0.5 h-10 rounded-full"
+          className="w-px h-10 rounded-full"
           style={{ background: "linear-gradient(180deg, #e91e8c 0%, #8b3fc8 100%)" }}
         />
         <div>

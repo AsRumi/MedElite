@@ -4,6 +4,7 @@ import {
   Text,
   View,
   Link,
+  Image,
   StyleSheet,
   Font,
 } from "@react-pdf/renderer";
@@ -74,6 +75,11 @@ const styles = StyleSheet.create({
     height: 36,
     backgroundColor: C.pink,
     borderRadius: 2,
+  },
+  headerLogo: {
+    width: 40,
+    height: 40,
+    objectFit: "contain",
   },
   headerSub: {
     fontSize: 7,
@@ -284,9 +290,10 @@ function SectionHeader({ children }: { children: string }) {
 
 interface Props {
   report: ReportModel;
+  logoSrc: string;
 }
 
-export default function FacilityPdf({ report }: Props) {
+export default function FacilityPdf({ report, logoSrc }: Props) {
   const { facility, manual, displayName } = report;
   const careCompareUrl = `https://www.medicare.gov/care-compare/details/nursing-home/${facility.ccn}`;
 
@@ -299,6 +306,7 @@ export default function FacilityPdf({ report }: Props) {
         {/* Branding header */}
         <View style={styles.header} fixed>
           <View style={styles.headerLeft}>
+            <Image src={logoSrc} style={styles.headerLogo} />
             <View style={styles.headerAccentBar} />
             <View>
               <Text style={styles.headerSub}>

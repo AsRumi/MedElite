@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import type { FacilityData, ManualInputs, ReportModel } from "@/lib/types";
 import SnapshotPreview from "@/components/SnapshotPreview";
 import { pdf } from "@react-pdf/renderer";
@@ -69,7 +70,8 @@ export default function Home() {
     setPdfLoading(true);
     setError(null);
     try {
-      const blob = await pdf(<FacilityPdf report={report} />).toBlob();
+      const logoSrc = `${window.location.origin}/logo.png`;
+      const blob = await pdf(<FacilityPdf report={report} logoSrc={logoSrc} />).toBlob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -95,8 +97,9 @@ export default function Home() {
       >
         <div className="max-w-screen-xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
+            <Image src="/logo.png" alt="INFINITE logo" width={48} height={48} className="object-contain flex-shrink-0" />
             <div
-              className="w-1 h-12 rounded-full"
+              className="w-px h-12 rounded-full"
               style={{ background: "linear-gradient(180deg, #e91e8c 0%, #8b3fc8 100%)" }}
             />
             <div>
