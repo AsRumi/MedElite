@@ -20,6 +20,7 @@ const EMPTY_MANUAL: ManualInputs = {
 export default function Home() {
   const [ccnInput, setCcnInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [claimsLoading, setClaimsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [facility, setFacility] = useState<FacilityData | null>(null);
   const [manual, setManual] = useState<ManualInputs>(EMPTY_MANUAL);
@@ -33,6 +34,7 @@ export default function Home() {
     if (!ccn) return;
 
     setLoading(true);
+    setClaimsLoading(false);
     setError(null);
     setFacility(null);
     setManual(EMPTY_MANUAL);
@@ -42,8 +44,24 @@ export default function Home() {
       const json = await res.json();
       if (!res.ok) {
         setError(json.error ?? "An unexpected error occurred.");
-      } else {
-        setFacility(json.data);
+        return;
+      }
+      // Facility data arrives — show the preview immediately (claims = null)
+      setFacility(json.data);
+      setLoading(false);
+
+      // Kick off claims fetch in the background
+      setClaimsLoading(true);
+      try {
+        const claimsRes = await fetch(`/api/facility?ccn=${encodeURIComponent(ccn)}&type=claims`);
+        const claimsJson = await claimsRes.json();
+        if (claimsRes.ok && claimsJson.data) {
+          setFacility((prev) => prev ? { ...prev, claims: claimsJson.data } : prev);
+        }
+      } catch {
+        // claims failing silently is acceptable — metrics just won't show
+      } finally {
+        setClaimsLoading(false);
       }
     } catch {
       setError("Network error: could not reach the server.");
@@ -349,7 +367,7 @@ export default function Home() {
             </button>
           )}
           {report ? (
-            <SnapshotPreview report={report} />
+            <SnapshotPreview report={report} claimsLoading={claimsLoading} />
           ) : (
             <div
               className="rounded-2xl flex flex-col items-center justify-center py-24 text-center px-8"

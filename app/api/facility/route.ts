@@ -3,6 +3,7 @@ import { fetchFacilityByCcn, fetchClaimsMetrics, NotFoundError } from "@/lib/cms
 
 export async function GET(req: NextRequest) {
   const ccn = req.nextUrl.searchParams.get("ccn")?.trim() ?? "";
+  const type = req.nextUrl.searchParams.get("type") ?? "facility";
 
   if (!ccn) {
     return NextResponse.json(
@@ -11,10 +12,23 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  if (type === "claims") {
+    try {
+      const facility = await fetchFacilityByCcn(ccn);
+      const claims = await fetchClaimsMetrics(ccn, facility.state);
+      return NextResponse.json({ data: claims });
+    } catch (err) {
+      if (err instanceof NotFoundError) {
+        return NextResponse.json({ error: err.message }, { status: 404 });
+      }
+      console.error("CMS claims fetch error:", err);
+      return NextResponse.json({ data: null });
+    }
+  }
+
   try {
     const facility = await fetchFacilityByCcn(ccn);
-    const claims = await fetchClaimsMetrics(ccn, facility.state);
-    return NextResponse.json({ data: { ...facility, claims } });
+    return NextResponse.json({ data: facility });
   } catch (err) {
     if (err instanceof NotFoundError) {
       return NextResponse.json({ error: err.message }, { status: 404 });

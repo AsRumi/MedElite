@@ -40,7 +40,7 @@ export async function fetchFacilityByCcn(ccn: string): Promise<FacilityData> {
   url.searchParams.set("conditions[0][operator]", "=");
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10_000);
+  const timeout = setTimeout(() => controller.abort(), 30_000);
 
   let res: Response;
   try {
@@ -105,20 +105,29 @@ function parseFloatOrNull(s: string | undefined): number | null {
   return isNaN(n) ? null : Math.round(n * 1000) / 1000;
 }
 
-async function fetchWithTimeout(url: string): Promise<Response> {
+async function fetchWithTimeout(url: string, ms = 10_000): Promise<Response> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10_000);
+  const timeout = setTimeout(() => controller.abort(), ms);
   try {
-    return await fetch(url, { next: { revalidate: 0 }, signal: controller.signal });
+    return await fetch(url, {
+      next: { revalidate: 0 },
+      signal: controller.signal,
+    });
   } finally {
     clearTimeout(timeout);
   }
 }
 
-export async function fetchClaimsMetrics(ccn: string, state: string): Promise<ClaimsMetrics | null> {
+export async function fetchClaimsMetrics(
+  ccn: string,
+  state: string,
+): Promise<ClaimsMetrics | null> {
   try {
     const claimsUrl = new URL(CLAIMS_ENDPOINT);
-    claimsUrl.searchParams.set("conditions[0][property]", "cms_certification_number_ccn");
+    claimsUrl.searchParams.set(
+      "conditions[0][property]",
+      "cms_certification_number_ccn",
+    );
     claimsUrl.searchParams.set("conditions[0][value]", ccn);
     claimsUrl.searchParams.set("conditions[0][operator]", "=");
 
@@ -133,9 +142,9 @@ export async function fetchClaimsMetrics(ccn: string, state: string): Promise<Cl
     stateUrl.searchParams.set("conditions[0][operator]", "=");
 
     const [claimsRes, natRes, stateRes] = await Promise.all([
-      fetchWithTimeout(claimsUrl.toString()),
-      fetchWithTimeout(natUrl.toString()),
-      fetchWithTimeout(stateUrl.toString()),
+      fetchWithTimeout(claimsUrl.toString(), 30_000),
+      fetchWithTimeout(natUrl.toString(), 30_000),
+      fetchWithTimeout(stateUrl.toString(), 30_000),
     ]);
 
     if (!claimsRes.ok || !natRes.ok || !stateRes.ok) return null;
@@ -151,21 +160,39 @@ export async function fetchClaimsMetrics(ccn: string, state: string): Promise<Cl
     const nat = natBody?.results?.[0] ?? {};
     const st = stateBody?.results?.[0] ?? {};
 
-    const byCode = Object.fromEntries(rows.map((r) => [r.measure_code, r.adjusted_score]));
+    const byCode = Object.fromEntries(
+      rows.map((r) => [r.measure_code, r.adjusted_score]),
+    );
 
     return {
       strHospitalization: parseFloatOrNull(byCode["521"]),
-      strHospitalizationNational: parseFloatOrNull(nat["percentage_of_short_stay_residents_who_were_rehospitalized__1d02"]),
-      strHospitalizationState: parseFloatOrNull(st["percentage_of_short_stay_residents_who_were_rehospitalized__1d02"]),
+      strHospitalizationNational: parseFloatOrNull(
+        nat["percentage_of_short_stay_residents_who_were_rehospitalized__1d02"],
+      ),
+      strHospitalizationState: parseFloatOrNull(
+        st["percentage_of_short_stay_residents_who_were_rehospitalized__1d02"],
+      ),
       strEdVisit: parseFloatOrNull(byCode["522"]),
-      strEdVisitNational: parseFloatOrNull(nat["percentage_of_short_stay_residents_who_had_an_outpatient_em_d911"]),
-      strEdVisitState: parseFloatOrNull(st["percentage_of_short_stay_residents_who_had_an_outpatient_em_d911"]),
+      strEdVisitNational: parseFloatOrNull(
+        nat["percentage_of_short_stay_residents_who_had_an_outpatient_em_d911"],
+      ),
+      strEdVisitState: parseFloatOrNull(
+        st["percentage_of_short_stay_residents_who_had_an_outpatient_em_d911"],
+      ),
       ltHospitalization: parseFloatOrNull(byCode["551"]),
-      ltHospitalizationNational: parseFloatOrNull(nat["number_of_hospitalizations_per_1000_longstay_resident_days"]),
-      ltHospitalizationState: parseFloatOrNull(st["number_of_hospitalizations_per_1000_longstay_resident_days"]),
+      ltHospitalizationNational: parseFloatOrNull(
+        nat["number_of_hospitalizations_per_1000_longstay_resident_days"],
+      ),
+      ltHospitalizationState: parseFloatOrNull(
+        st["number_of_hospitalizations_per_1000_longstay_resident_days"],
+      ),
       ltEdVisit: parseFloatOrNull(byCode["552"]),
-      ltEdVisitNational: parseFloatOrNull(nat["number_of_outpatient_emergency_department_visits_per_1000_l_de9d"]),
-      ltEdVisitState: parseFloatOrNull(st["number_of_outpatient_emergency_department_visits_per_1000_l_de9d"]),
+      ltEdVisitNational: parseFloatOrNull(
+        nat["number_of_outpatient_emergency_department_visits_per_1000_l_de9d"],
+      ),
+      ltEdVisitState: parseFloatOrNull(
+        st["number_of_outpatient_emergency_department_visits_per_1000_l_de9d"],
+      ),
     };
   } catch {
     return null;

@@ -6,9 +6,10 @@ import BrandingHeader from "./BrandingHeader";
 
 interface Props {
   report: ReportModel;
+  claimsLoading?: boolean;
 }
 
-export default function SnapshotPreview({ report }: Props) {
+export default function SnapshotPreview({ report, claimsLoading }: Props) {
   const { facility, manual, displayName } = report;
   const careCompareUrl = `https://www.medicare.gov/care-compare/details/nursing-home/${facility.ccn}`;
 
@@ -55,20 +56,40 @@ export default function SnapshotPreview({ report }: Props) {
           <RatingRow label="Quality of Resident Care" value={facility.qmRating} />
         </Accordion>
 
-        {facility.claims && (
+        {(claimsLoading || facility.claims) && (
           <Accordion title="Hospitalization &amp; ED Metrics">
-            <MetricRow label="Short Term Hospitalization" value={facility.claims.strHospitalization} pct />
-            <MetricRow label="STR National Avg. for Hospitalization" value={facility.claims.strHospitalizationNational} pct />
-            <MetricRow label="STR State Avg. for Hospitalization" value={facility.claims.strHospitalizationState} pct />
-            <MetricRow label="STR ED Visit" value={facility.claims.strEdVisit} pct />
-            <MetricRow label="STR ED Visits National Avg." value={facility.claims.strEdVisitNational} pct />
-            <MetricRow label="STR ED Visits State Avg." value={facility.claims.strEdVisitState} pct />
-            <MetricRow label="LT Hospitalization" value={facility.claims.ltHospitalization} />
-            <MetricRow label="LT National Avg. for Hospitalization" value={facility.claims.ltHospitalizationNational} />
-            <MetricRow label="LT State Avg. for Hospitalization" value={facility.claims.ltHospitalizationState} />
-            <MetricRow label="ED Visit" value={facility.claims.ltEdVisit} />
-            <MetricRow label="LT ED Visits National Avg." value={facility.claims.ltEdVisitNational} />
-            <MetricRow label="LT ED Visits State Avg." value={facility.claims.ltEdVisitState} />
+            {claimsLoading ? (
+              <div className="flex items-center gap-3 py-6">
+                <svg
+                  className="animate-spin h-5 w-5 flex-shrink-0"
+                  style={{ color: "#8b3fc8" }}
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                <span className="text-sm font-medium" style={{ color: "#8b3fc8" }}>
+                  Loading metrics…
+                </span>
+              </div>
+            ) : facility.claims ? (
+              <>
+                <MetricRow label="Short Term Hospitalization" value={facility.claims.strHospitalization} pct />
+                <MetricRow label="STR National Avg. for Hospitalization" value={facility.claims.strHospitalizationNational} pct />
+                <MetricRow label="STR State Avg. for Hospitalization" value={facility.claims.strHospitalizationState} pct />
+                <MetricRow label="STR ED Visit" value={facility.claims.strEdVisit} pct />
+                <MetricRow label="STR ED Visits National Avg." value={facility.claims.strEdVisitNational} pct />
+                <MetricRow label="STR ED Visits State Avg." value={facility.claims.strEdVisitState} pct />
+                <MetricRow label="LT Hospitalization" value={facility.claims.ltHospitalization} />
+                <MetricRow label="LT National Avg. for Hospitalization" value={facility.claims.ltHospitalizationNational} />
+                <MetricRow label="LT State Avg. for Hospitalization" value={facility.claims.ltHospitalizationState} />
+                <MetricRow label="ED Visit" value={facility.claims.ltEdVisit} />
+                <MetricRow label="LT ED Visits National Avg." value={facility.claims.ltEdVisitNational} />
+                <MetricRow label="LT ED Visits State Avg." value={facility.claims.ltEdVisitState} />
+              </>
+            ) : null}
           </Accordion>
         )}
 
