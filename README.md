@@ -74,5 +74,4 @@ No environment variables are required since the app calls the public CMS API fro
 
 - **Saved report history:** Vercel Postgres or SQLite would be the natural starting point. Problem of stale information comes into picture.
 - **Access control:** SSO gate if this became a real internal deployment.
-- **12 hospitalization/ED metrics:** Claims-based quality measures from the Medicare Claims Quality Measures dataset (`NH_QualityMsr_Claims`), mapped using the STR → Short-Stay / LT → Long-Stay convention from the data dictionary.
 - **Word (.docx) export** as a second download format.
