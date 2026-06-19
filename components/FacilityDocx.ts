@@ -25,7 +25,7 @@ const PINK = "e91e8c";
 const PURPLE = "8b3fc8";
 const PURPLE_LIGHT = "c084fc";
 const SECTION_BG = "f5f0ff";
-const LABEL_GRAY = "9ca3af";
+const LABEL_GRAY = "374151";
 const BODY_TEXT = "1a1a2e";
 const WHITE = "ffffff";
 const EMPTY_TEXT = "d1d5db";
@@ -241,14 +241,25 @@ export async function generateDocx(report: ReportModel): Promise<Blob> {
 
   const logoBuffer = await fetchLogoBuffer();
 
+  // A4 page width = 11906 twips. Body margins = 0.75in each side = 1080 twips each.
+  // Header table spans full page width and is negatively indented by the left margin
+  // so it bleeds edge-to-edge while body content stays within normal margins.
+  const PAGE_WIDTH_DXA  = 11906;
+  const BODY_MARGIN_DXA = 1080; // 0.75 in each side
+  const HEADER_WIDTH    = PAGE_WIDTH_DXA; // full bleed
+  const LOGO_COL        = 1100;
+  const STATE_COL       = 2000;
+  const BRAND_COL       = HEADER_WIDTH - LOGO_COL - STATE_COL;
+
   // ── Header (appears on every page) ──────────────────────────────────────
   const docHeader = new Header({
     children: [
       new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
+        width: { size: HEADER_WIDTH, type: WidthType.DXA },
+        indent: { size: -BODY_MARGIN_DXA, type: WidthType.DXA },
         borders: {
           top: { style: BorderStyle.NONE, size: 0, color: "auto" },
-          bottom: { style: BorderStyle.SINGLE, size: 12, color: PINK },
+          bottom: { style: BorderStyle.SINGLE, size: 18, color: PINK },
           left: { style: BorderStyle.NONE, size: 0, color: "auto" },
           right: { style: BorderStyle.NONE, size: 0, color: "auto" },
         },
@@ -257,18 +268,18 @@ export async function generateDocx(report: ReportModel): Promise<Blob> {
             children: [
               // Logo cell
               new TableCell({
-                width: { size: 10, type: WidthType.PERCENTAGE },
+                width: { size: LOGO_COL, type: WidthType.DXA },
                 shading: { type: ShadingType.SOLID, color: DARK_BG },
                 borders: NO_BORDER,
                 verticalAlign: VerticalAlign.CENTER,
-                margins: { top: 80, bottom: 80, left: 120, right: 80 },
+                margins: { top: 100, bottom: 100, left: 160, right: 80 },
                 children: [
                   new Paragraph({
                     alignment: AlignmentType.CENTER,
                     children: [
                       new ImageRun({
                         data: logoBuffer,
-                        transformation: { width: 40, height: 40 },
+                        transformation: { width: 44, height: 44 },
                         type: "png",
                       }),
                     ],
@@ -277,11 +288,11 @@ export async function generateDocx(report: ReportModel): Promise<Blob> {
               }),
               // Brand text cell
               new TableCell({
-                width: { size: 72, type: WidthType.PERCENTAGE },
+                width: { size: BRAND_COL, type: WidthType.DXA },
                 shading: { type: ShadingType.SOLID, color: DARK_BG },
                 borders: NO_BORDER,
                 verticalAlign: VerticalAlign.CENTER,
-                margins: { top: 80, bottom: 80, left: 120, right: 80 },
+                margins: { top: 100, bottom: 100, left: 140, right: 80 },
                 children: [
                   new Paragraph({
                     children: [
@@ -289,7 +300,7 @@ export async function generateDocx(report: ReportModel): Promise<Blob> {
                         text: "INFINITE — Managed by MEDELITE",
                         bold: true,
                         color: PURPLE_LIGHT,
-                        size: 14,
+                        size: 15,
                         characterSpacing: 40,
                       }),
                     ],
@@ -300,7 +311,7 @@ export async function generateDocx(report: ReportModel): Promise<Blob> {
                         text: "FACILITY ASSESSMENT SNAPSHOT",
                         bold: true,
                         color: WHITE,
-                        size: 22,
+                        size: 24,
                         characterSpacing: 30,
                       }),
                     ],
@@ -309,11 +320,11 @@ export async function generateDocx(report: ReportModel): Promise<Blob> {
               }),
               // State cell
               new TableCell({
-                width: { size: 18, type: WidthType.PERCENTAGE },
+                width: { size: STATE_COL, type: WidthType.DXA },
                 shading: { type: ShadingType.SOLID, color: DARK_BG },
                 borders: NO_BORDER,
                 verticalAlign: VerticalAlign.CENTER,
-                margins: { top: 80, bottom: 80, left: 80, right: 120 },
+                margins: { top: 100, bottom: 100, left: 80, right: 160 },
                 children: facility.state
                   ? [
                       new Paragraph({
@@ -323,7 +334,7 @@ export async function generateDocx(report: ReportModel): Promise<Blob> {
                             text: facility.state,
                             bold: true,
                             color: PINK,
-                            size: 52,
+                            size: 56,
                             characterSpacing: 60,
                           }),
                         ],
@@ -335,7 +346,7 @@ export async function generateDocx(report: ReportModel): Promise<Blob> {
                             text: "STATE",
                             bold: true,
                             color: PURPLE_LIGHT,
-                            size: 12,
+                            size: 13,
                             characterSpacing: 40,
                           }),
                         ],
@@ -402,10 +413,11 @@ export async function generateDocx(report: ReportModel): Promise<Blob> {
         properties: {
           page: {
             margin: {
-              top: convertInchesToTwip(1.1),
+              top: convertInchesToTwip(1.2),
               bottom: convertInchesToTwip(0.75),
               left: convertInchesToTwip(0.75),
               right: convertInchesToTwip(0.75),
+              header: 0,
             },
           },
         },
