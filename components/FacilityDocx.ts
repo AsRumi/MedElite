@@ -269,7 +269,7 @@ export async function generateDocx(report: ReportModel): Promise<Blob> {
               // Logo cell
               new TableCell({
                 width: { size: LOGO_COL, type: WidthType.DXA },
-                shading: { type: ShadingType.SOLID, color: DARK_BG },
+                shading: { type: ShadingType.SOLID, color: DARK_BG, fill: DARK_BG },
                 borders: NO_BORDER,
                 verticalAlign: VerticalAlign.CENTER,
                 margins: { top: 100, bottom: 100, left: 160, right: 80 },
@@ -289,7 +289,7 @@ export async function generateDocx(report: ReportModel): Promise<Blob> {
               // Brand text cell
               new TableCell({
                 width: { size: BRAND_COL, type: WidthType.DXA },
-                shading: { type: ShadingType.SOLID, color: DARK_BG },
+                shading: { type: ShadingType.SOLID, color: DARK_BG, fill: DARK_BG },
                 borders: NO_BORDER,
                 verticalAlign: VerticalAlign.CENTER,
                 margins: { top: 100, bottom: 100, left: 140, right: 80 },
@@ -321,7 +321,7 @@ export async function generateDocx(report: ReportModel): Promise<Blob> {
               // State cell
               new TableCell({
                 width: { size: STATE_COL, type: WidthType.DXA },
-                shading: { type: ShadingType.SOLID, color: DARK_BG },
+                shading: { type: ShadingType.SOLID, color: DARK_BG, fill: DARK_BG },
                 borders: NO_BORDER,
                 verticalAlign: VerticalAlign.CENTER,
                 margins: { top: 100, bottom: 100, left: 80, right: 160 },
