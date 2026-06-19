@@ -6,6 +6,7 @@ import type { FacilityData, ManualInputs, ReportModel } from "@/lib/types";
 import SnapshotPreview from "@/components/SnapshotPreview";
 import { pdf } from "@react-pdf/renderer";
 import FacilityPdf from "@/components/FacilityPdf";
+import { generateDocx } from "@/components/FacilityDocx";
 
 const EMPTY_MANUAL: ManualInputs = {
   nameOverride: "",
@@ -78,6 +79,7 @@ export default function Home() {
   }
 
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [docxLoading, setDocxLoading] = useState(false);
 
   const report: ReportModel | null = facility
     ? { facility, manual, displayName }
@@ -100,6 +102,25 @@ export default function Home() {
       setError("PDF generation failed. Please try again.");
     } finally {
       setPdfLoading(false);
+    }
+  }
+
+  async function handleDownloadDocx() {
+    if (!report) return;
+    setDocxLoading(true);
+    setError(null);
+    try {
+      const blob = await generateDocx(report);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${report.displayName || report.facility.ccn} — Facility Assessment.docx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setError("Word document generation failed. Please try again.");
+    } finally {
+      setDocxLoading(false);
     }
   }
 
@@ -351,20 +372,36 @@ export default function Home() {
         {/* RIGHT — sticky snapshot preview */}
         <div className="lg:sticky lg:top-6 space-y-3">
           {report && (
-            <button
-              onClick={handleDownloadPdf}
-              disabled={pdfLoading}
-              className="w-full py-3.5 rounded-xl text-sm font-bold text-white tracking-wide transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-              style={{
-                background: pdfLoading
-                  ? "#c084fc"
-                  : "linear-gradient(135deg, #e91e8c 0%, #8b3fc8 100%)",
-                boxShadow: pdfLoading ? "none" : "0 6px 20px rgba(233,30,140,0.4)",
-                fontFamily: "var(--font-jakarta)",
-              }}
-            >
-              {pdfLoading ? "Generating PDF…" : "⬇ Download PDF"}
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleDownloadPdf}
+                disabled={pdfLoading || docxLoading}
+                className="flex-1 py-3.5 rounded-xl text-sm font-bold text-white tracking-wide transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{
+                  background: pdfLoading
+                    ? "#c084fc"
+                    : "linear-gradient(135deg, #e91e8c 0%, #8b3fc8 100%)",
+                  boxShadow: pdfLoading ? "none" : "0 6px 20px rgba(233,30,140,0.4)",
+                  fontFamily: "var(--font-jakarta)",
+                }}
+              >
+                {pdfLoading ? "Generating…" : "⬇ Download PDF"}
+              </button>
+              <button
+                onClick={handleDownloadDocx}
+                disabled={pdfLoading || docxLoading}
+                className="flex-1 py-3.5 rounded-xl text-sm font-bold text-white tracking-wide transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{
+                  background: docxLoading
+                    ? "#6b7280"
+                    : "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
+                  boxShadow: docxLoading ? "none" : "0 6px 20px rgba(37,99,235,0.35)",
+                  fontFamily: "var(--font-jakarta)",
+                }}
+              >
+                {docxLoading ? "Generating…" : "⬇ Download Word"}
+              </button>
+            </div>
           )}
           {report ? (
             <SnapshotPreview report={report} claimsLoading={claimsLoading} />
