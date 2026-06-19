@@ -74,4 +74,3 @@ No environment variables are required since the app calls the public CMS API fro
 
 - **Saved report history:** Vercel Postgres or SQLite would be the natural starting point. Problem of stale information comes into picture.
 - **Access control:** SSO gate if this became a real internal deployment.
-- **Word (.docx) export** as a second download format.
